@@ -12,9 +12,9 @@ const options = {
 
 
 const App=()=>{
-  console.log("Renderizando app");
-  const [contador, setContador] = useState(0);
+
   const [data, setData] = useState(0); 
+  
   const getData = async()=>{
     const response = await axios.get('http://127.0.0.1:8000');
     setData(response.data.data);
@@ -23,14 +23,8 @@ const App=()=>{
   
   useEffect(()=>{
     getData()
-  },[])
-  var contadorVar=0;
-  const click=()=>{
-    //contadorVar+=1;
-    setContador(contador+1);
-    //console.log(contadorVar);
-  }
-
+  },[]);
+  
   return (
     <div>
       <Chart
@@ -40,11 +34,6 @@ const App=()=>{
         data={data}
         options={options}
       />
-      <p>{contador}</p>
-      <p>{contadorVar}</p>
-      <button onClick={click}>
-        Aumentar
-      </button>
     </div>
   );
 }
