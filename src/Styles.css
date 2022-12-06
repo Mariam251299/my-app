@@ -1,0 +1,14 @@
+.myCard {
+    width: 80%; 
+    max-width: 600px; 
+    margin: auto; 
+    margin-top: 100px; 
+    padding: 20px
+}
+
+.centerButton {
+    display: block; 
+    left: 0; 
+    right: 0; 
+    margin: auto
+}
