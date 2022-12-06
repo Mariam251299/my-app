@@ -12,3 +12,12 @@
     right: 0; 
     margin: auto
 }
+
+.title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.subTitle {
+    font-size: 18px;
+}
