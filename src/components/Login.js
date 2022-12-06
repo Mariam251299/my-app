@@ -1,4 +1,4 @@
-import { Card, CardContent, TextField, Button, Alert } from '@mui/material';
+import { Card, CardContent, TextField, Button, Alert, CircularProgress } from '@mui/material';
 import { Box } from '@mui/system';
 import axios from 'axios';
 import React, { useState } from 'react'
@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 
 const Login = ({ setToken }) => {
     const [alert, setAlert] = useState({ text: '', show: false });
+    const [ loading, setLoading ] = useState(false);
 
     const [username, setUserName] = useState('');
     const [password, setPassword] = useState('');
@@ -20,10 +21,14 @@ const Login = ({ setToken }) => {
             return;
         }
 
+        setLoading(true);
+
         const response = await axios.post('http://127.0.0.1:8000/user/login', {
             username,
             password
         });
+
+        setLoading(false);
 
         if (!response.data.status) {
             setAlert({ text: 'Credenciales incorrectas', show: true });
@@ -40,14 +45,17 @@ const Login = ({ setToken }) => {
                 <CardContent>
                     {show && <Alert severity="error">{text}</Alert>}
                     <br />
-                    <TextField id="outlined-basic" label="Usuario" variant="outlined" fullWidth onChange={e => setUserName(e.target.value)} />
+                    <TextField id="outlined-basic" label="Usuario" variant="outlined" fullWidth onChange={e => setUserName(e.target.value)} disabled={loading}/>
                     <br />
                     <br />
-                    <TextField id="outlined-basic" label="Contraseña" variant="outlined" fullWidth onChange={e => setPassword(e.target.value)} type={'password'} />
+                    <TextField id="outlined-basic" label="Contraseña" variant="outlined" fullWidth onChange={e => setPassword(e.target.value)} type={'password'} disabled={loading}/>
                     <br />
                     <br />
                     <Box textAlign='center'>
-                        <Button variant="outlined" onClick={handleSubmit}>Ingresar</Button>
+                        <Button variant="outlined" onClick={handleSubmit} disabled={loading}>
+                            Ingresar
+                            { loading && <CircularProgress size={15}/> }
+                        </Button>
                     </Box>
                 </CardContent>
             </Card>

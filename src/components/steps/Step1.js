@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, createMuiTheme, Grid, List, ListItemButton, ListItemText, TextField } from "@mui/material";
+import { Alert, Button, Card, CardContent, CircularProgress, createMuiTheme, Grid, List, ListItemButton, ListItemText, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import React, { useState } from "react";
@@ -14,6 +14,9 @@ const Step1 = ({ setStep, setDatabases }) => {
     const [selectedIndex, setSelectedIndex] = useState(1);
     // const { instances, setInstances } = instanceUtils;
     const [instances, setInstances] = useState([]);
+    const [alert, setAlert] = useState({ text: '', show: false });
+    const { text, show } = alert;
+    const [ loading, setLoading ] = useState(false);
 
     const { fields, isValid, formChange, getInfo, reset } = useForm({
         host: {
@@ -65,13 +68,23 @@ const Step1 = ({ setStep, setDatabases }) => {
     const handleContinue = async () => {
         const token = JSON.parse(localStorage.getItem('token')).token;
 
-        const response = await axios.post('http://127.0.0.1:8000/data/get-databases', {
-            instances
-        }, { headers: { authorization: token } });
+        setLoading(true);
 
-        // console.log(response.data.instancesData);
-        setDatabases(response.data.instancesData)
-        setStep((step) => step + 1)
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/data/get-databases', {
+                instances
+            }, { headers: { authorization: token } });
+            // console.log(response.data.instancesData);
+            setDatabases(response.data.instancesData)
+            setStep((step) => step + 1)
+            setLoading(false);
+        } catch(ex) {
+            console.log(ex);
+            setLoading(false);
+            setAlert({text: ex.response.data.message, show: true})
+        }
+
+
     }
 
     return (
@@ -128,7 +141,7 @@ const Step1 = ({ setStep, setDatabases }) => {
                             <br />
                             <br />
                             <Box textAlign='center'>
-                                <Button variant="outlined" onClick={handleAdd}>Agregar</Button>
+                                <Button variant="outlined" onClick={handleAdd} disabled={loading}>Agregar</Button>
                             </Box>
                         </CardContent>
                     </Card>
@@ -136,6 +149,8 @@ const Step1 = ({ setStep, setDatabases }) => {
                 <Grid item xs={6}>
                     <Card className="myCard">
                         <CardContent>
+                            { show && <Alert severity="error">{text}</Alert> }
+                            <br></br>
                             { instances.length <= 0 && <p style={{textAlign: 'center'}}>No se han agregado instancias</p> }
                             {
                                 instances.map(({ type, host, username, database, id }, index) => {
@@ -145,13 +160,16 @@ const Step1 = ({ setStep, setDatabases }) => {
                                             <p><span style={{fontWeight: 'bold'}}>Host: </span> {host}</p>
                                             <p><span style={{fontWeight: 'bold'}}>Usuario: </span> {username}</p>
                                             <p><span style={{fontWeight: 'bold'}}>Base de datos: </span> {database}</p>
-                                            <Button variant="text" color="error" onClick={() => { handleRemoveItem(id) }}>Eliminar</Button>
+                                            <Button variant="text" color="error" onClick={() => { handleRemoveItem(id) }} disabled={loading}>Eliminar</Button>
                                         </div>
                                     )
                                 })
                             }
                             <Box textAlign='center'>
-                                <Button variant="outlined" onClick={handleContinue} disabled={instances.length <= 0}>Continuar</Button>
+                                <Button variant="outlined" onClick={handleContinue} disabled={instances.length <= 0} disabled={loading}>
+                                    Continuar
+                                    { loading && <CircularProgress size={15}/> }
+                                </Button>
                             </Box>
                         </CardContent>
                     </Card>
